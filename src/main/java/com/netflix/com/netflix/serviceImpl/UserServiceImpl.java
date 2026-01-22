@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.UUID;
 
 //Add your annotations here
@@ -108,6 +109,65 @@ public class UserServiceImpl implements UserService {
             userPage = userRepository.findAll(pageable);
         }
         return PaginationUtils.toPageResponse(userPage, UserResponse::fromEntity);
+    }
+
+    @Override
+    public MessageResponse deleteUser(Long id, String currentUserEmail) {
+        User user = serviceUtils.getUserByIdOrThrow(id);
+
+        if (user.getEmail().equals(currentUserEmail)) {
+            throw new RuntimeException("You cannot delete your own account");
+        }
+
+        ensureNotLastAdmin(user, "delete");
+
+        userRepository.deleteById(id);
+
+        return new MessageResponse("User deleted successfully");
+    }
+
+    private void ensureNotLastAdmin(User user, String operation) {
+        if (user.getRole()  == Role.ADMIN) {
+            long adminCount = userRepository.countByRole(Role.ADMIN);
+
+            if (adminCount <= 1) {
+                throw new RuntimeException("You cannot " + operation + " the last admin user");
+            }
+        }
+    }
+
+    @Override
+    public MessageResponse toggleUserStatus(Long id, String currentUserEmail) {
+        User user = serviceUtils.getUserByIdOrThrow(id);
+
+        if (user.getEmail().equals(currentUserEmail)) {
+            throw new RuntimeException("You cannot deactivate your own account");
+        }
+
+        ensureNotLastActiveAdmin(user);
+
+        user.setActive(!user.isActive());
+
+        userRepository.save(user);
+
+        return new MessageResponse("User status updated successfully.");
+    }
+
+    @Override
+    public MessageResponse changeUserRole(Long id, UserRequest userRequest) {
+        User user = serviceUtils.getUserByIdOrThrow(id);
+
+        validateRole(userRequest.getRole());
+
+        Role newRole = Role.valueOf(userRequest.getRole().toUpperCase(Locale.ROOT));
+        if (user.getRole() == Role.ADMIN && newRole == Role.USER) {
+            ensureNotLastAdmin(user, "change the role of");
+        }
+
+        user.setRole(newRole);
+        userRepository.save(user);
+
+        return new MessageResponse("User role updated successfully.");
     }
 
 }

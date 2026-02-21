@@ -18,9 +18,9 @@ public class VideoRequest {
 
     private Integer year;
     private String rating;
-    private String duration;
+    private Integer duration;
     private String src;
     private String poster;
-    private String published;
+    private boolean isPublished;
     private List<String> categories;
 }

@@ -26,7 +26,7 @@ public class Video {
     private String title;
 
     @Column(length = 4000)
-    private String Description;
+    private String description;
 
     private Integer year;
     private String rating;

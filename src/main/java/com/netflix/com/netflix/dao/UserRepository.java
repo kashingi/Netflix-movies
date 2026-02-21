@@ -1,6 +1,7 @@
 package com.netflix.dao;
 
 import com.netflix.entity.User;
+import com.netflix.entity.Video;
 import com.netflix.enums.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,7 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 //Add your annotations here
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -30,4 +33,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> searchUsers(@Param("search") String search, Pageable pageable);
 
     long countByRole(Role role);
+
+    @Query("SELECT v.id FROM User u JOIN u.watchlist v WHERE u.email = :eamil AND v.id IN :videoIds")
+    Set<Long> findWatchlistVideosIds(@Param("email") String email, @Param("videoIds") List<Long> videoIds);
+
+    @Query(
+            "SELECT v FROM User u JOIN u.watchlist v " +
+                    "WHERE u.id = :userId AND v.published = true AND (" +
+                    "LOWER(v.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                    "LOWER(v.description) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Video> searchWatchlistByUserId(@Param("userId") Long userId, @Param("search") String search, Pageable pageable);
+
+    @Query("SELECT v FROM User u JOIN u.watchlist v WHERE u.id = :userId AND v.published = true")
+    Page<Video> findWatchlistByUserId(Long userId, Pageable pageable);
 }

@@ -75,7 +75,7 @@ public class User {
         this.watchlist.add(video);
     }
 
-    private void removeFromWatchlist(Video video) {
+    public void removeFromWatchlist(Video video) {
 
         this.watchlist.remove(video);
     }

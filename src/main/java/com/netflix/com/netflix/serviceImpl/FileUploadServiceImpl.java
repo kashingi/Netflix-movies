@@ -124,7 +124,7 @@ public class FileUploadServiceImpl implements FileUploadService {
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline : filename=\"" + fileName + "\"")
                 .header(HttpHeaders.ACCEPT_RANGES, "bytes")
-                .header(HttpHeaders.CONTENT_RANGE, "bytes", + rangeStart + "-" + rangeEnd + "/" + fileLength)
+                .header(HttpHeaders.CONTENT_RANGE, "bytes " + rangeStart + "-" + rangeEnd + "/" + fileLength)
                 .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength)).body(rangeResource);
     }
 
@@ -133,7 +133,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     private ResponseEntity<Resource> buildRangeNotSatisfiableResponse(long fileLength) {
-        return ResponseEntity.status(4016)
+        return ResponseEntity.status(416)
                 .header(HttpHeaders.CONTENT_RANGE, "bytes */" + fileLength).build();
     }
 
@@ -147,7 +147,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             String contentType = FileHandleUtil.detectImageContentType(filename);
 
             return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline : filename=\"" + filename + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                     .body(resource);
         } catch (Exception ex) {
             return ResponseEntity.notFound().build();

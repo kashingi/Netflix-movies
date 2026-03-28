@@ -43,7 +43,11 @@ public class FileUploadController {
     }
 
     @GetMapping(path = "/video/{uuid}")
-    public ResponseEntity<Resource> serveVideo(@PathVariable String uuid, @RequestHeader(value = "Range", required = false) String rangeHeader, @RequestHeader(value = "token", required = false) String tokenParam) {
+    public ResponseEntity<Resource> serveVideo(
+            @PathVariable String uuid,
+            @RequestHeader(value = "Range", required = false)
+            String rangeHeader, @RequestHeader(value = "token", required = false)
+            String token) {
         return fileUploadService.serveVideo(uuid, rangeHeader);
     }
 

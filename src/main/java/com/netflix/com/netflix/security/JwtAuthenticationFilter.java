@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             return authorizationHeader.substring(7);
-        } else if ((requestURI.contains("/api/files/video/") || requestURI.contains("/api/files/images/")) && request.getParameter("token") != null) {
+        } else if ((requestURI.contains("/api/files/video/") || requestURI.contains("/api/files/image/")) && request.getParameter("token") != null) {
             return request.getParameter("token");
         }
 
